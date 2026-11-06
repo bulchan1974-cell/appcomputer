@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC BUILDER HUB - ระบบจัดสเปคและสั่งประกอบคอมพิวเตอร์ครบวงจร</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F17',
+                            card: '#151C2C',
+                            border: '#2A344B',
+                            primary: '#6366F1',
+                            accent: '#A855F7',
+                            cyan: '#06B6D4',
+                            neonGreen: '#10B981'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 20px rgba(168, 85, 247, 0.35)',
+                        'neon-cyan': '0 0 20px rgba(6, 182, 212, 0.35)',
+                        'glow': '0 0 15px rgba(99, 102, 241, 0.25)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0B0F17;
+            color: #E2E8F0;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A344B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B4866;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #06B6D4 0%, #6366F1 50%, #A855F7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background-image: linear-gradient(#151C2C, #151C2C), linear-gradient(135deg, #06B6D4, #A855F7);
+            background-clip: content-box, border-box;
+        }
+        .modal-backdrop {
+            background-color: rgba(11, 15, 23, 0.85);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-primary selection:text-white">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 bg-brand-dark/90 backdrop-blur-md border-b border-brand-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('builder')">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-cyan via-brand-primary to-brand-accent p-0.5 shadow-neon-cyan">
+                        <div class="w-full h-full bg-brand-dark rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid font-bold fa-desktop text-2xl text-brand-cyan"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-extrabold tracking-wide gradient-text">PC BUILDER HUB</h1>
+                        <p class="text-xs text-gray-400 font-light hidden sm:block">จัดสเปค ซื้อ-สั่งประกอบได้ทันที ไม่ต้องเดินถามหาของ</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Customer View) -->
+                <nav id="customer-nav" class="hidden md:flex items-center space-x-1 bg-brand-card/60 p-1.5 rounded-xl border border-brand-border">
+                    <button onclick="switchTab('builder')" id="nav-builder" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-white bg-brand-primary shadow-glow">
+                        <i class="fa-solid fa-microchip mr-2"></i>จัดสเปคคอม
+                    </button>
+                    <button onclick="switchTab('ai-wizard')" id="nav-ai-wizard" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2 text-brand-accent"></i>AI ช่วยจัดสเปค
+                    </button>
+                    <button onclick="switchTab('guide')" id="nav-guide" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all">
+                        <i class="fa-solid fa-play-circle mr-2 text-brand-cyan"></i>คู่มือประกอบ
+                    </button>
+                    <button onclick="switchTab('track')" id="nav-track" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all relative">
+                        <i class="fa-solid fa-truck-fast mr-2"></i>สถานะออเดอร์
+                        <span id="order-badge" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-brand-cyan rounded-full animate-ping"></span>
+                    </button>
+                </nav>
+
+                <!-- Role Selector (Customer / Admin) -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-brand-card p-1 rounded-xl border border-brand-border flex items-center shadow-inner">
+                        <button id="role-customer-btn" onclick="setRole('customer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-primary text-white shadow-glow">
+                            <i class="fa-solid fa-user-astronaut mr-1.5"></i>ลูกค้า
+                        </button>
+                        <button id="role-admin-btn" onclick="setRole('admin')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-user-shield mr-1.5"></i>เจ้าของร้าน (Admin)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Bar -->
+            <div id="mobile-customer-nav" class="flex md:hidden overflow-x-auto py-2 space-x-2 border-t border-brand-border/50 text-xs">
+                <button onclick="switchTab('builder')" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-brand-primary text-white">จัดสเปคคอม</button>
+                <button onclick="switchTab('ai-wizard')" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-brand-card text-gray-300">AI ช่วยจัดสเปค</button>
+                <button onclick="switchTab('guide')" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-brand-card text-gray-300">คู่มือประกอบ</button>
+                <button onclick="switchTab('track')" class="px-3 py-1.5 rounded-lg whitespace-nowrap bg-brand-card text-gray-300">ติดตามออเดอร์</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- ============================================================== -->
+        <!-- VIEW: CUSTOMER (ลูกค้า)                                        -->
+        <!-- ============================================================== -->
+        <div id="customer-view" class="space-y-8">
+
+            <!-- TAB 1: PC BUILDER CUSTOMIZER -->
+            <div id="tab-builder" class="tab-content space-y-6">
+                <!-- Banner Notification -->
+                <div class="bg-gradient-to-r from-brand-primary/20 via-brand-accent/20 to-brand-cyan/20 border border-brand-primary/40 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-neon-purple">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-brand-primary/30 flex items-center justify-center text-brand-cyan shrink-0 text-2xl">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">จัดสเปคคอมพิวเตอร์ตามใจคุณ</h2>
+                            <p class="text-xs sm:text-sm text-gray-300">เลือกรุ่นที่ใช่ เช็คความเข้ากันได้ ชำระเงินง่าย พร้อมรับหน้าร้านหรือส่งถึงบ้าน!</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('ai-wizard')" class="w-full md:w-auto px-5 py-2.5 bg-gradient-to-r from-brand-accent to-brand-primary hover:opacity-90 rounded-xl text-sm font-semibold transition text-white shadow-neon-purple flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>ให้ AI ช่วยจัดสเปค</span>
+                    </button>
+                </div>
+
+                <!-- Main Builder Layout Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column: Component Selection List (8 cols) -->
+                    <div class="lg:col-span-8 space-y-4">
+                        <!-- Filters Header -->
+                        <div class="bg-brand-card p-4 rounded-2xl border border-brand-border flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-filter text-brand-cyan"></i>
+                                <span class="font-semibold text-sm">ตัวกรองแบรนด์ / งบประมาณ:</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <select id="filter-brand" onchange="filterParts()" class="bg-brand-dark border border-brand-border rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-primary">
+                                    <option value="all">ทุกยี่ห้อ (Brand)</option>
+                                    <option value="Intel">Intel</option>
+                                    <option value="AMD">AMD</option>
+                                    <option value="NVIDIA">NVIDIA (ASUS/MSI/Gigabyte)</option>
+                                </select>
+                                <select id="filter-price" onchange="filterParts()" class="bg-brand-dark border border-brand-border rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-primary">
+                                    <option value="all">ทุกช่วงราคา</option>
+                                    <option value="low">เน้นประหยัด (&lt; 5,000฿)</option>
+                                    <option value="mid">คุ้มค่า (5,000 - 15,000฿)</option>
+                                    <option value="high">ระดับท็อป (&gt; 15,000฿)</option>
+                                </select>
+                                <button onclick="resetFilters()" class="px-3 py-1.5 bg-brand-border/50 hover:bg-brand-border rounded-lg text-gray-300">
+                                    <i class="fa-solid fa-rotate-left mr-1"></i>รีเซ็ต
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Parts Slots Container -->
+                        <div id="components-list" class="space-y-3">
+                            <!-- Dynamic rendering via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Summary & Checkout Side Panel (4 cols) -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-brand-card rounded-2xl border border-brand-border p-5 sticky top-28 shadow-xl">
+                            <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-between border-b border-brand-border pb-3">
+                                <span><i class="fa-solid fa-receipt text-brand-accent mr-2"></i>สรุปสเปคที่เลือก</span>
+                                <span id="selected-count-badge" class="text-xs bg-brand-primary/20 text-brand-cyan border border-brand-primary/30 px-2 py-0.5 rounded-full">0 ชิ้น</span>
+                            </h3>
+
+                            <!-- Selected List Preview -->
+                            <div id="cart-items-preview" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs mb-4">
+                                <p class="text-gray-500 text-center py-6">ยังไม่ได้เลือกร้านอุปกรณ์ คลิก "เลือกอุปกรณ์" ด้านซ้ายเพื่อเริ่มจัดสเปค</p>
+                            </div>
+
+                            <!-- Add-ons Section -->
+                            <div class="border-t border-brand-border pt-3 mb-4">
+                                <label class="block text-xs font-semibold text-gray-400 mb-2">บริการเสริม / อัปเกรด (Add-on)</label>
+                                <div class="space-y-2 text-xs">
+                                    <label class="flex items-center justify-between p-2 rounded-lg bg-brand-dark/50 border border-brand-border hover:border-brand-primary cursor-pointer transition">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" id="addon-assembly" onchange="calculateTotal()" checked class="rounded border-brand-border text-brand-primary focus:ring-brand-primary">
+                                            <span>บริการจัดประกอบ + เก็บสายไฟเนี๊ยบ</span>
+                                        </div>
+                                        <span class="text-brand-cyan font-bold">+ 350 ฿</span>
+                                    </label>
+                                    <label class="flex items-center justify-between p-2 rounded-lg bg-brand-dark/50 border border-brand-border hover:border-brand-primary cursor-pointer transition">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" id="addon-windows" onchange="calculateTotal()" class="rounded border-brand-border text-brand-primary focus:ring-brand-primary">
+                                            <span>ลง Windows 11 Key แท้ พร้อมใช้</span>
+                                        </div>
+                                        <span class="text-brand-cyan font-bold">+ 1,200 ฿</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Total Price -->
+                            <div class="border-t border-brand-border pt-4 mb-6">
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <span class="text-sm text-gray-400">ราคารวมสุทธิ</span>
+                                    <span id="total-price" class="text-2xl font-extrabold text-brand-cyan">0 ฿</span>
+                                </div>
+                                <p class="text-[11px] text-emerald-400 flex items-center justify-end">
+                                    <i class="fa-solid fa-shield-halved mr-1"></i> รวมประกันสินค้าแท้ศูนย์ไทย 3 ปีเต็ม
+                                </p>
+                            </div>
+
+                            <!-- Checkout Action Button -->
+                            <button onclick="openCheckoutModal()" id="btn-checkout" disabled class="w-full py-3.5 bg-gradient-to-r from-brand-cyan via-brand-primary to-brand-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl font-bold text-white shadow-neon-purple transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-shopping-cart"></i>
+                                <span>สั่งซื้อและชำระเงิน</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: AI SPECS WIZARD -->
+            <div id="tab-ai-wizard" class="tab-content hidden space-y-6">
+                <div class="max-w-3xl mx-auto bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 shadow-neon-purple relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="text-center space-y-2 mb-8">
+                        <div class="inline-flex items-center space-x-2 bg-brand-accent/10 border border-brand-accent/30 text-brand-accent px-4 py-1.5 rounded-full text-xs font-semibold">
+                            <i class="fa-solid fa-sparkles"></i>
+                            <span>AI Specs Recommendation Wizard</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">ช่วยคุณแนะนำสเปคคอมที่คุ้มค่าที่สุด</h2>
+                        <p class="text-sm text-gray-400">กรอกงบประมาณและรูปแบบการใช้งาน ระบบ AI จะแมตช์สเปคที่ดีที่สุดให้ทันที</p>
+                    </div>
+
+                    <form id="ai-wizard-form" onsubmit="generateAISpecs(event)" class="space-y-6">
+                        <!-- Budget Input -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-2">
+                                <i class="fa-solid fa-wallet text-brand-cyan mr-2"></i>งบประมาณของคุณ (บาท):
+                            </label>
+                            <input type="number" id="ai-budget" min="10000" max="200000" step="1000" value="25000" required class="w-full bg-brand-dark border border-brand-border rounded-xl px-4 py-3 text-lg font-bold text-brand-cyan focus:outline-none focus:border-brand-primary">
+                        </div>
+
+                        <!-- Main Purpose -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-2">
+                                <i class="fa-solid fa-gamepad text-brand-accent mr-2"></i>จุดประสงค์การใช้งานหลัก:
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <label class="p-4 rounded-xl border border-brand-border bg-brand-dark/50 hover:border-brand-primary cursor-pointer transition flex flex-col items-center text-center space-y-2">
+                                    <input type="radio" name="ai-usecase" value="gaming" checked class="text-brand-primary">
+                                    <i class="fa-solid fa-headset text-2xl text-brand-cyan"></i>
+                                    <span class="text-sm font-bold">เน้นเล่นเกม (Gaming)</span>
+                                    <span class="text-[11px] text-gray-400">เน้นการ์ดจอแรง ปรับกราฟิกสูง</span>
+                                </label>
+                                <label class="p-4 rounded-xl border border-brand-border bg-brand-dark/50 hover:border-brand-primary cursor-pointer transition flex flex-col items-center text-center space-y-2">
+                                    <input type="radio" name="ai-usecase" value="work" class="text-brand-primary">
+                                    <i class="fa-solid fa-laptop-code text-2xl text-brand-primary"></i>
+                                    <span class="text-sm font-bold">ทำงาน / กราฟิก / ตัดต่อ</span>
+                                    <span class="text-[11px] text-gray-400">เน้น CPU Multi-Core และ RAM เยอะ</span>
+                                </label>
+                                <label class="p-4 rounded-xl border border-brand-border bg-brand-dark/50 hover:border-brand-primary cursor-pointer transition flex flex-col items-center text-center space-y-2">
+                                    <input type="radio" name="ai-usecase" value="office" class="text-brand-primary">
+                                    <i class="fa-solid fa-briefcase text-2xl text-brand-accent"></i>
+                                    <span class="text-sm font-bold">ทั่วไป / เรียน / ออฟฟิศ</span>
+                                    <span class="text-[11px] text-gray-400">เน้นความคุ้มค่า ประหยัดไฟ</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Preferred Brand -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-2">ค่าย CPU ที่ชื่นชอบ:</label>
+                            <select id="ai-brand-pref" class="w-full bg-brand-dark border border-brand-border rounded-xl px-4 py-2.5 text-sm">
+                                <option value="any">ไม่มีตัวเลือกเป็นพิเศษ (AI เลือกสเปคที่คุ้มที่สุด)</option>
+                                <option value="Intel">Intel Core i Series</option>
+                                <option value="AMD">AMD Ryzen Series</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-gradient-to-r from-brand-cyan via-brand-primary to-brand-accent hover:opacity-90 rounded-xl font-bold text-white shadow-neon-purple transition flex items-center justify-center space-x-2 text-base">
+                            <i class="fa-solid fa-brain"></i>
+                            <span>ประมวลผลจัดสเปคด้วย AI</span>
+                        </button>
+                    </form>
+
+                    <!-- AI Result Section -->
+                    <div id="ai-result" class="hidden mt-8 border-t border-brand-border pt-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-white flex items-center">
+                                <i class="fa-solid fa-circle-check text-brand-neonGreen mr-2"></i>ข้อเสนอแนะสเปคจาก AI
+                            </h3>
+                            <span id="ai-total-cost" class="text-xl font-extrabold text-brand-cyan"></span>
+                        </div>
+                        <div id="ai-spec-list" class="space-y-2 bg-brand-dark/70 p-4 rounded-xl border border-brand-border text-sm">
+                            <!-- Dynamic Render -->
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="applyAISpecsToBuilder()" class="flex-1 py-3 bg-brand-primary hover:bg-brand-primary/80 rounded-xl font-bold text-white transition text-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-file-import"></i>
+                                <span>นำสเปคนี้ไปใส่ใน Builder</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: HOW TO BUILD / GUIDES -->
+            <div id="tab-guide" class="tab-content hidden space-y-6">
+                <div class="text-center space-y-2 mb-6">
+                    <h2 class="text-2xl font-extrabold text-white">คู่มือและวิดีโอแนะนำการประกอบคอมพิวเตอร์</h2>
+                    <p class="text-sm text-gray-400">เรียนรู้ขั้นตอนการประกอบง่ายๆ สไตล์มืออาชีพ สำหรับคนที่อยากลองประกอบเองที่บ้าน</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Video Card 1 -->
+                    <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-lg group hover:border-brand-cyan transition">
+                        <div class="relative aspect-video bg-gray-900 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-cover bg-center opacity-60" style="background-image: url('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="w-16 h-16 rounded-full bg-brand-primary/90 text-white flex items-center justify-center text-2xl shadow-neon-purple cursor-pointer group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="p-5 space-y-2">
+                            <span class="text-xs bg-brand-cyan/20 text-brand-cyan px-2.5 py-1 rounded-full font-semibold">ขั้นตอนพื้นฐาน</span>
+                            <h3 class="font-bold text-white text-base">คู่มือประกอบ PC มือใหม่ฉบับปี 2026 เข้าใจง่ายภายใน 15 นาที</h3>
+                            <p class="text-xs text-gray-400">สอนติดตั้ง CPU, ทาซิลิโคน, ใส่ RAM, ขันบอร์ดเข้าเคส และการเสียบสายไฟหน้าเคส</p>
+                        </div>
+                    </div>
+
+                    <!-- Video Card 2 -->
+                    <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-lg group hover:border-brand-accent transition">
+                        <div class="relative aspect-video bg-gray-900 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-cover bg-center opacity-60" style="background-image: url('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="w-16 h-16 rounded-full bg-brand-accent/90 text-white flex items-center justify-center text-2xl shadow-neon-purple cursor-pointer group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play ml-1"></i>
+                            </div>
+                        </div>
+                        <div class="p-5 space-y-2">
+                            <span class="text-xs bg-brand-accent/20 text-brand-accent px-2.5 py-1 rounded-full font-semibold">เทคนิคขั้นสูง</span>
+                            <h3 class="font-bold text-white text-base">เทคนิคการเก็บสายไฟ (Cable Management) ให้สวยสะอาด Airflow ดีเยี่ยม</h3>
+                            <p class="text-xs text-gray-400">แนะนำช่องทางเดินสายเคเบิล การใช้เคเบิลไทร์ และการจัดระเบียบสายไฟพาวเวอร์ซัพพลาย</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Checklist for Self Assembly -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-white flex items-center">
+                        <i class="fa-solid fa-list-check text-brand-cyan mr-2"></i>เช็คลิสต์ขั้นตอนการประกอบเรียงตามลำดับ
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                        <div class="p-3 bg-brand-dark rounded-xl border border-brand-border space-y-1">
+                            <span class="text-brand-cyan font-bold">Step 1</span>
+                            <p class="font-semibold text-white">เตรียมเมนบอร์ด</p>
+                            <p class="text-gray-400">ใส่ CPU, RAM และ M.2 NVMe SSD บน เมนบอร์ดภายนอกเคสก่อน</p>
+                        </div>
+                        <div class="p-3 bg-brand-dark rounded-xl border border-brand-border space-y-1">
+                            <span class="text-brand-cyan font-bold">Step 2</span>
+                            <p class="font-semibold text-white">ติดตั้ง PSU & พัดลม</p>
+                            <p class="text-gray-400">ยึด Power Supply เข้าเคส และจัดทิศทางพัดลมระบายความร้อน</p>
+                        </div>
+                        <div class="p-3 bg-brand-dark rounded-xl border border-brand-border space-y-1">
+                            <span class="text-brand-cyan font-bold">Step 3</span>
+                            <p class="font-semibold text-white">ขันยึด บอร์ด & ชุดน้ำ/ชุดลม</p>
+                            <p class="text-gray-400">ยึดเมนบอร์ดเข้ากับ Standoff ในเคส และติดตั้งฮีตซิงก์/ชุดน้ำ</p>
+                        </div>
+                        <div class="p-3 bg-brand-dark rounded-xl border border-brand-border space-y-1">
+                            <span class="text-brand-cyan font-bold">Step 4</span>
+                            <p class="font-semibold text-white">เสียบการ์ดจอ & เสียบสาย</p>
+                            <p class="text-gray-400">เสียบ GPU เป็นขั้นตอนสุดท้าย พร้อมเสียบสายไฟเลี้ยงหลัก 24-Pin/CPU</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ORDER TRACKING -->
+            <div id="tab-track" class="tab-content hidden space-y-6">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="text-center space-y-2">
+                        <h2 class="text-2xl font-extrabold text-white">ติดตามสถานะออเดอร์ (Live Tracker)</h2>
+                        <p class="text-sm text-gray-400">ตรวจสอบความคืบหน้าการจัดเตรียมและประกอบคอมพิวเตอร์ของคุณแบบเรียลไทม์</p>
+                    </div>
+
+                    <!-- Current Active Order Card -->
+                    <div id="customer-order-status-card" class="bg-brand-card rounded-2xl border border-brand-border p-6 shadow-neon-cyan space-y-6">
+                        <!-- Render via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW: ADMIN / STORE OWNER (เจ้าของร้าน)                         -->
+        <!-- ============================================================== -->
+        <div id="admin-view" class="hidden space-y-8">
+
+            <!-- Admin Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-card p-6 rounded-2xl border border-brand-border">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white flex items-center">
+                        <i class="fa-solid fa-chart-line text-brand-cyan mr-3"></i>แผงควบคุมเจ้าของร้าน (Admin Dashboard)
+                    </h2>
+                    <p class="text-xs text-gray-400">จัดการคำสั่งซื้อ Real-time ตรวจสอบเช็คลิสต์ และอัปเดตสถานะให้ลูกค้า</p>
+                </div>
+                <div class="flex items-center space-x-2 text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Line Notify API Status: Connected</span>
+                </div>
+            </div>
+
+            <!-- Key Statistics Metrics Widgets -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-brand-card p-5 rounded-2xl border border-brand-border space-y-2">
+                    <div class="flex items-center justify-between text-gray-400 text-xs">
+                        <span>ยอดขายรวมวันนี้</span>
+                        <i class="fa-solid fa-coins text-yellow-400 text-base"></i>
+                    </div>
+                    <p id="stat-total-sales" class="text-2xl font-extrabold text-white">฿ 142,500</p>
+                    <span class="text-[11px] text-emerald-400"><i class="fa-solid fa-arrow-up mr-1"></i>+12.5% จากเมื่อวาน</span>
+                </div>
+
+                <div class="bg-brand-card p-5 rounded-2xl border border-brand-border space-y-2">
+                    <div class="flex items-center justify-between text-gray-400 text-xs">
+                        <span>ออเดอร์รอดำเนินการ</span>
+                        <i class="fa-solid fa-boxes-packing text-brand-cyan text-base"></i>
+                    </div>
+                    <p id="stat-pending-orders" class="text-2xl font-extrabold text-brand-cyan">3 ออเดอร์</p>
+                    <span class="text-[11px] text-gray-400">กำลังรอประกอบ / ตรวจรับ</span>
+                </div>
+
+                <div class="bg-brand-card p-5 rounded-2xl border border-brand-border space-y-2">
+                    <div class="flex items-center justify-between text-gray-400 text-xs">
+                        <span>ประกอบสำเร็จวันนี้</span>
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+                    </div>
+                    <p id="stat-completed-orders" class="text-2xl font-extrabold text-emerald-400">5 ชุด</p>
+                    <span class="text-[11px] text-emerald-400">ส่งมอบเรียบร้อย</span>
+                </div>
+
+                <div class="bg-brand-card p-5 rounded-2xl border border-brand-border space-y-2">
+                    <div class="flex items-center justify-between text-gray-400 text-xs">
+                        <span>มัดจำ/คืนประกันคงค้าง</span>
+                        <i class="fa-solid fa-hand-holding-dollar text-brand-accent text-base"></i>
+                    </div>
+                    <p id="stat-deposit-refund" class="text-2xl font-extrabold text-brand-accent">฿ 3,000</p>
+                    <span class="text-[11px] text-gray-400">รอการกดยืนยันคืนเงิน</span>
+                </div>
+            </div>
+
+            <!-- Admin Live Orders List & Assembly Inspector -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Orders Table (7 cols) -->
+                <div class="lg:col-span-7 bg-brand-card rounded-2xl border border-brand-border p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-brand-border pb-3">
+                        <h3 class="text-base font-bold text-white flex items-center">
+                            <i class="fa-solid fa-list text-brand-cyan mr-2"></i>รายการออเดอร์ (Real-time Order Feed)
+                        </h3>
+                        <span class="text-xs bg-brand-primary/20 text-brand-primary border border-brand-primary/30 px-2.5 py-1 rounded-full">อัปเดตอัตโนมัติ</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-brand-dark/70 text-gray-400 uppercase border-b border-brand-border">
+                                <tr>
+                                    <th class="p-3">เลขที่ออเดอร์</th>
+                                    <th class="p-3">ลูกค้า / โทร</th>
+                                    <th class="p-3">ยอดรวม</th>
+                                    <th class="p-3">สถานะ</th>
+                                    <th class="p-3 text-right">การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-tbody" class="divide-y divide-brand-border/50">
+                                <!-- Dynamic Render -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Inspector & Line Notify Console (5 cols) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <!-- Equipment Checklist & Inspector Component -->
+                    <div id="admin-inspector-card" class="bg-brand-card rounded-2xl border border-brand-border p-5 space-y-4">
+                        <h3 class="text-base font-bold text-white flex items-center border-b border-brand-border pb-3">
+                            <i class="fa-solid fa-clipboard-check text-brand-accent mr-2"></i>เช็คลิสต์ตรวจรับอุปกรณ์ & การประกอบ
+                        </h3>
+                        
+                        <div id="inspector-content">
+                            <p class="text-xs text-gray-500 text-center py-8">คลิกปุ่ม "ตรวจรับ/ประกอบ" ที่รายการออเดอร์ด้านซ้ายเพื่อดำเนินการ</p>
+                        </div>
+                    </div>
+
+                    <!-- Line Notify Log Simulation Box -->
+                    <div class="bg-brand-card rounded-2xl border border-brand-border p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-brand-border pb-2">
+                            <h4 class="text-xs font-bold text-emerald-400 flex items-center">
+                                <i class="fa-brands fa-line text-base mr-2"></i>Line Notify Real-Time Log
+                            </h4>
+                            <span class="text-[10px] text-gray-400">LINE Bot Server</span>
+                        </div>
+                        <div id="line-notify-logs" class="bg-black/60 font-mono text-[11px] p-3 rounded-xl h-36 overflow-y-auto space-y-1.5 text-green-400 border border-brand-border">
+                            <div>[SYSTEM]: Line Notify Webhook ready...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-dark border-t border-brand-border py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2 text-xs text-gray-500">
+            <p>PC BUILDER HUB &copy; 2026 - ระบบจัดสเปค ซื้อ-สั่งประกอบคอมพิวเตอร์แบบทันที</p>
+            <p class="text-[11px] text-gray-600">ออกแบบสำหรับร้านขายอุปกรณ์คอมพิวเตอร์และร้านรับสั่งประกอบ PC ยุคใหม่</p>
+        </div>
+    </footer>
+
+
+    <!-- ============================================================== -->
+    <!-- MODALS SECTION                                                 -->
+    <!-- ============================================================== -->
+
+    <!-- PART SELECT MODAL -->
+    <div id="part-select-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-neon-purple overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-brand-border flex items-center justify-between bg-brand-dark/50">
+                <h3 id="modal-category-title" class="font-bold text-white text-base flex items-center">
+                    <i class="fa-solid fa-microchip text-brand-cyan mr-2"></i>เลือกอุปกรณ์
+                </h3>
+                <button onclick="closeModal('part-select-modal')" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <!-- Modal Search Input -->
+            <div class="p-3 border-b border-brand-border bg-brand-dark/30">
+                <input type="text" id="modal-search" oninput="searchModalParts()" placeholder="พิมพ์ชื่อรุ่น ยี่ห้อ หรือสเปค..." class="w-full bg-brand-dark border border-brand-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-primary">
+            </div>
+            <!-- Modal Items List -->
+            <div id="modal-parts-list" class="p-4 overflow-y-auto space-y-3 flex-grow">
+                <!-- Dynamic Render -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkout-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-neon-cyan">
+            <div class="flex items-center justify-between border-b border-brand-border pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="fa-solid fa-bag-shopping text-brand-cyan mr-2"></i>ยืนยันการสั่งซื้อ & ชำระเงิน
+                </h3>
+                <button onclick="closeModal('checkout-modal')" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Checkout Details Form -->
+            <form id="checkout-form" onsubmit="submitOrder(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-300 mb-1">ชื่อ-นามสกุล ผู้ซื้อ *</label>
+                    <input type="text" id="cust-name" required placeholder="เช่น สมชาย สายปั่น" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3 py-2.5 text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-gray-300 mb-1">เบอร์โทรศัพท์ *</label>
+                        <input type="tel" id="cust-phone" required placeholder="0812345678" class="w-full bg-brand-dark border border-brand-border rounded-xl px-3 py-2.5 text-white">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-300 mb-1">รูปแบบการรับสินค้า</label>
+                        <div class="w-full bg-brand-dark/80 border border-brand-primary/50 text-brand-cyan rounded-xl px-3 py-2.5 font-bold flex items-center space-x-2">
+                            <i class="fa-solid fa-store"></i>
+                            <span>รับหน้าร้านเท่านั้น (Store Pickup)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Section -->
+                <div class="border-t border-brand-border pt-4 space-y-3">
+                    <label class="block font-semibold text-gray-200">ชำระเงินผ่าน PromptPay QR / โอนสลิป</label>
+                    <div class="bg-white p-4 rounded-xl flex flex-col items-center justify-center text-gray-900 text-center space-y-2">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=00020101021129370016A000000677010111031508123456785802TH5303764" alt="PromptPay QR" class="w-36 h-36 border border-gray-300 rounded-lg">
+                        <p class="font-bold text-sm text-brand-dark">สแกนจ่ายผ่านแอปธนาคารทุกแห่ง</p>
+                        <p class="text-xs text-gray-600">ยอดที่ต้องชำระ: <span id="checkout-qr-amount" class="font-extrabold text-brand-primary text-sm">0 ฿</span></p>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-gray-300 mb-1">อัปโหลดสลิปการโอนเงิน *</label>
+                        <input type="file" id="slip-upload" accept="image/*" required class="w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-primary file:text-white file:font-semibold hover:file:bg-brand-primary/80">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-brand-cyan to-brand-primary hover:opacity-90 rounded-xl font-bold text-white shadow-neon-cyan text-sm transition">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>ส่งคำสั่งซื้อ (Send Order)
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- JAVASCRIPT LOGIC                                               -->
+    <!-- ============================================================== -->
+    <script>
+        // -------------------------------------------------------------
+        // DATABASE: PC PARTS CATALOG (EXPANDED BASIC & ADVANCED PARTS)
+        // -------------------------------------------------------------
+        const partsCatalog = {
+            cpu: [
+                { id: 'cpu-gen9-1', name: 'Intel Core i3-9100F', brand: 'Intel', price: 1590, specs: '4C/4T / 3.6GHz / LGA1151-v2' },
+                { id: 'cpu-gen9-2', name: 'Intel Core i5-9400F', brand: 'Intel', price: 2290, specs: '6C/6T / 2.9GHz / LGA1151-v2' },
+                { id: 'cpu-gen9-3', name: 'Intel Core i7-9700K', brand: 'Intel', price: 4590, specs: '8C/8T / 3.6GHz / LGA1151-v2' },
+                { id: 'cpu-gen10-1', name: 'Intel Core i3-10100F', brand: 'Intel', price: 2150, specs: '4C/8T / 3.6GHz / LGA1200' },
+                { id: 'cpu-gen10-2', name: 'Intel Core i5-10400F', brand: 'Intel', price: 3190, specs: '6C/12T / 2.9GHz / LGA1200' },
+                { id: 'cpu-gen10-3', name: 'Intel Core i7-10700K', brand: 'Intel', price: 5890, specs: '8C/16T / 3.8GHz / LGA1200' },
+                { id: 'cpu-1', name: 'Intel Core i3-12100F', brand: 'Intel', price: 3450, specs: '4C/8T / 3.3GHz / LGA1700' },
+                { id: 'cpu-2', name: 'Intel Core i5-13400F', brand: 'Intel', price: 6890, specs: '10C/16T / 2.5GHz / LGA1700' },
+                { id: 'cpu-3', name: 'Intel Core i7-14700K', brand: 'Intel', price: 15900, specs: '20C/28T / 3.4GHz / LGA1700' },
+                { id: 'cpu-4', name: 'Intel Core i9-14900K', brand: 'Intel', price: 21900, specs: '24C/32T / 3.2GHz / LGA1700 Flagship' },
+                { id: 'cpu-a1', name: 'AMD Athlon 3000G', brand: 'AMD', price: 1490, specs: '2C/4T / 3.5GHz / AM4 (Vega 3)' },
+                { id: 'cpu-a2', name: 'AMD Ryzen 3 4100', brand: 'AMD', price: 2290, specs: '4C/8T / 3.8GHz / AM4' },
+                { id: 'cpu-5', name: 'AMD Ryzen 5 5600', brand: 'AMD', price: 4200, specs: '6C/12T / 3.5GHz / AM4' },
+                { id: 'cpu-5g', name: 'AMD Ryzen 5 5600G', brand: 'AMD', price: 4690, specs: '6C/12T / Integrated Vega 7 Graphics / AM4' },
+                { id: 'cpu-6', name: 'AMD Ryzen 7 7800X3D', brand: 'AMD', price: 14900, specs: '8C/16T / Gaming King / AM5' },
+                { id: 'cpu-7', name: 'AMD Ryzen 9 7900X', brand: 'AMD', price: 16800, specs: '12C/24T / 4.7GHz / AM5 High-End' }
+            ],
+            mb: [
+                { id: 'mb-0', name: 'GIGABYTE H310M S2H', brand: 'Intel', price: 1690, specs: 'DDR4 / LGA1151-v2 (Gen 8/9)' },
+                { id: 'mb-01', name: 'ASRock H410M-HDV', brand: 'Intel', price: 1890, specs: 'DDR4 / LGA1200 (Gen 10/11)' },
+                { id: 'mb-1', name: 'ASUS PRIME H610M-K', brand: 'Intel', price: 2350, specs: 'DDR4 / Micro-ATX / LGA1700' },
+                { id: 'mb-2', name: 'MSI B760M GAMING PLUS WIFI', brand: 'Intel', price: 4990, specs: 'DDR5 / Wi-Fi 6E / LGA1700' },
+                { id: 'mb-3', name: 'ASUS ROG STRIX Z790-A GAMING WIFI', brand: 'Intel', price: 12900, specs: 'DDR5 / High-End / LGA1700' },
+                { id: 'mb-a1', name: 'MSI A320M-A PRO', brand: 'AMD', price: 1490, specs: 'DDR4 / Micro-ATX / AM4' },
+                { id: 'mb-4', name: 'ASRock B550M-HDV', brand: 'AMD', price: 2290, specs: 'DDR4 / AM4 Value' },
+                { id: 'mb-5', name: 'GIGABYTE B650 AORUS ELITE AX', brand: 'AMD', price: 7200, specs: 'DDR5 / AM5 / PCIe 5.0' }
+            ],
+            gpu: [
+                { id: 'gpu-gt710', name: 'NVIDIA GeForce GT 710 2GB', brand: 'NVIDIA', price: 1290, specs: '2GB DDR3 / Basic Display Output' },
+                { id: 'gpu-gt1030', name: 'NVIDIA GeForce GT 1030 2GB', brand: 'NVIDIA', price: 2450, specs: '2GB GDDR5 / Office & Light Esports' },
+                { id: 'gpu-1', name: 'NVIDIA GTX 1650 4GB', brand: 'NVIDIA', price: 4500, specs: '4GB GDDR6 / Dual Fan' },
+                { id: 'gpu-rtx2060', name: 'NVIDIA RTX 2060 6GB', brand: 'NVIDIA', price: 5490, specs: '6GB GDDR6 / Ray Tracing' },
+                { id: 'gpu-rtx2070s', name: 'NVIDIA RTX 2070 Super 8GB', brand: 'NVIDIA', price: 7290, specs: '8GB GDDR6 / High Performance' },
+                { id: 'gpu-rtx2080s', name: 'NVIDIA RTX 2080 Super 8GB', brand: 'NVIDIA', price: 8900, specs: '8GB GDDR6 / Ultra Gaming' },
+                { id: 'gpu-rtx2080ti', name: 'NVIDIA RTX 2080 Ti 11GB', brand: 'NVIDIA', price: 10900, specs: '11GB GDDR6 / 352-bit Flagship 20 Series' },
+                { id: 'gpu-2', name: 'ASUS Dual RTX 4060 8GB', brand: 'NVIDIA', price: 10900, specs: '8GB GDDR6 / DLSS 3' },
+                { id: 'gpu-3', name: 'MSI RTX 4070 Super 12GB', brand: 'NVIDIA', price: 23900, specs: '12GB GDDR6X / High Gaming' },
+                { id: 'gpu-4', name: 'GIGABYTE RTX 4080 Super 16GB', brand: 'NVIDIA', price: 39900, specs: '16GB GDDR6X / 4K Gaming' },
+                { id: 'gpu-5', name: 'ROG Strix RTX 4090 24GB', brand: 'NVIDIA', price: 74900, specs: '24GB GDDR6X / Ultimate Flagship' },
+                { id: 'gpu-rx6400', name: 'AMD Radeon RX 6400 4GB', brand: 'AMD', price: 3890, specs: '4GB GDDR6 / Compact Budget' },
+                { id: 'gpu-6', name: 'AMD Radeon RX 7800 XT 16GB', brand: 'AMD', price: 18900, specs: '16GB GDDR6 / 1440p Gaming' }
+            ],
+            ram: [
+                { id: 'ram-0', name: 'Kingston ValueRAM 8GB DDR4 2666MHz', brand: 'Kingston', price: 690, specs: '8GB Single / DDR4 Basic' },
+                { id: 'ram-1', name: 'Kingston Fury Beast 16GB (8x2) DDR4 3200MHz', brand: 'Kingston', price: 1450, specs: '16GB Kit / DDR4' },
+                { id: 'ram-1b', name: 'CORSAIR Vengeance LPX 32GB (16x2) DDR4 3200MHz', brand: 'Corsair', price: 2690, specs: '32GB Kit / DDR4' },
+                { id: 'ram-2', name: 'Corsair Vengeance RGB 32GB (16x2) DDR5 6000MHz', brand: 'Corsair', price: 4600, specs: '32GB Kit / DDR5' },
+                { id: 'ram-3', name: 'G.SKILL Trident Z5 RGB 64GB (32x2) DDR5 6400MHz', brand: 'G.SKILL', price: 9200, specs: '64GB Kit / DDR5 Extreme' }
+            ],
+            storage: [
+                { id: 'ssd-128-sata', name: 'Hiksemi WAVE 128GB SATA III SSD', brand: 'Hiksemi', price: 450, specs: '128GB SATA 2.5" / Read 530 MB/s' },
+                { id: 'ssd-128-m2', name: 'Lexar NM610 PRO 128GB M.2 NVMe', brand: 'Lexar', price: 590, specs: '128GB M.2 PCIe 3.0 / Read 1600 MB/s' },
+                { id: 'ssd-128-kingston', name: 'Kingston NV2 128GB M.2 NVMe', brand: 'Kingston', price: 650, specs: '128GB M.2 PCIe 4.0 / Read 2000 MB/s' },
+                { id: 'hdd-1tb', name: 'WD Blue 1TB 3.5" HDD 7200RPM', brand: 'Western Digital', price: 1350, specs: '1TB Harddisk Drive / Bulk Data' },
+                { id: 'ssd-1', name: 'Crucial P3 500GB M.2 PCIe 3.0', brand: 'Crucial', price: 1190, specs: 'Read 3500 MB/s' },
+                { id: 'ssd-2', name: 'Kingston NV2 1TB M.2 PCIe 4.0', brand: 'Kingston', price: 2290, specs: 'Read 3500 MB/s' },
+                { id: 'ssd-3', name: 'SAMSUNG 980 PRO 1TB M.2 PCIe 4.0', brand: 'Samsung', price: 3490, specs: 'Read 7000 MB/s' },
+                { id: 'ssd-4', name: 'WD Black SN850X 2TB M.2 PCIe 4.0', brand: 'Western Digital', price: 5990, specs: 'Read 7300 MB/s High Performance' }
+            ],
+            psu: [
+                { id: 'psu-0', name: 'DTECH 500W Standard PSU', brand: 'DTECH', price: 490, specs: '500W Standard / Office Use' },
+                { id: 'psu-1', name: 'AEROCOOL UNITED 600W 80+', brand: 'Aerocool', price: 1250, specs: '600W 80+ White' },
+                { id: 'psu-2', name: 'Corsair CX750M 750W 80+ Bronze', brand: 'Corsair', price: 2890, specs: '750W Semi-Modular' },
+                { id: 'psu-3', name: 'SilverStone ET850-G 850W 80+ Gold', brand: 'SilverStone', price: 3990, specs: '850W Full-Modular' },
+                { id: 'psu-4', name: 'Seasonic FOCUS GX-1000 1000W 80+ Gold', brand: 'Seasonic', price: 6290, specs: '1000W Full-Modular ATX 3.0' }
+            ],
+            cooler: [
+                { id: 'cool-0', name: 'Intel/AMD Stock Cooler', brand: 'Standard', price: 0, specs: 'พัดลมติดมากับกล่อง CPU' },
+                { id: 'cool-1', name: 'Thermalright Assassin X 120 Refined SE', brand: 'Thermalright', price: 690, specs: 'Air Cooler / 4 Heatpipes RGB' },
+                { id: 'cool-2', name: 'DeepCool AK400 Digital', brand: 'DeepCool', price: 1290, specs: 'Air Cooler / LED Status Display' },
+                { id: 'cool-3', name: 'Thermalright Frozen Prism 240 ARGB', brand: 'Thermalright', price: 2190, specs: 'Liquid Cooler 240mm (ชุดน้ำเปิด/ปิด)' },
+                { id: 'cool-4', name: 'NZXT Kraken 360 RGB', brand: 'NZXT', price: 7890, specs: 'Liquid Cooler 360mm LCD Display' }
+            ],
+            case: [
+                { id: 'case-0', name: 'Neolution E-Sport Micro ATX Case', brand: 'Neolution', price: 590, specs: 'Basic Office Compact Case' },
+                { id: 'case-1', name: 'Tsunami Galaxy G15 Mesh', brand: 'Tsunami', price: 990, specs: 'Includes 3x ARGB Fans' },
+                { id: 'case-2', name: 'Cooler Master MasterBox 520', brand: 'Cooler Master', price: 2690, specs: 'Tempered Glass / ATX' },
+                { id: 'case-3', name: 'Lian Li O11 Dynamic EVO Black', brand: 'Lian Li', price: 5890, specs: 'Dual Chamber Premium Glass' }
+            ]
+        };
+
+        const categoryMeta = {
+            cpu: { title: 'ซีพียู (CPU)', icon: 'fa-microchip' },
+            mb: { title: 'เมนบอร์ด (Mainboard)', icon: 'fa-cubes' },
+            gpu: { title: 'การ์ดจอ (Graphics Card)', icon: 'fa-gamepad' },
+            ram: { title: 'หน่วยความจำ (RAM)', icon: 'fa-memory' },
+            storage: { title: 'ที่เก็บข้อมูล (Storage SSD/HDD)', icon: 'fa-hard-drive' },
+            psu: { title: 'พาวเวอร์ซัพพลาย (Power Supply)', icon: 'fa-plug' },
+            cooler: { title: 'ชุดระบายความร้อน (Cooling Fan/AIO)', icon: 'fa-fan' },
+            case: { title: 'เคสคอมพิวเตอร์ (Case)', icon: 'fa-box' }
+        };
+
+        // APPLICATION STATE
+        let selectedParts = {
+            cpu: null,
+            mb: null,
+            gpu: null,
+            ram: null,
+            storage: null,
+            psu: null,
+            cooler: null,
+            case: null
+        };
+
+        let currentActiveCategory = null;
+
+        let ordersDatabase = [
+            {
+                id: 'ORD-8821',
+                customerName: 'สมชาย ชัยชนะ',
+                phone: '0891234567',
+                pickupMethod: 'รับหน้าร้าน (Store Pickup)',
+                items: [
+                    { name: 'Intel Core i5-10400F', price: 3190 },
+                    { name: 'NVIDIA RTX 2060 6GB', price: 5490 },
+                    { name: 'Kingston Fury Beast 16GB', price: 1450 }
+                ],
+                addons: ['บริการจัดประกอบ + เก็บสายไฟเนี๊ยบ (350฿)'],
+                totalPrice: 10480,
+                status: 'pending', // pending, assembling, ready
+                checklist: { partsChecked: true, assembled: false, windowsTested: false }
+            }
+        ];
+
+        let activeTab = 'builder';
+        let currentRole = 'customer';
+
+        // -------------------------------------------------------------
+        // NAVIGATION & ROLE FUNCTIONS
+        // -------------------------------------------------------------
+        function setRole(role) {
+            currentRole = role;
+            const custBtn = document.getElementById('role-customer-btn');
+            const adminBtn = document.getElementById('role-admin-btn');
+            const custView = document.getElementById('customer-view');
+            const adminView = document.getElementById('admin-view');
+            const custNav = document.getElementById('customer-nav');
+
+            if (role === 'customer') {
+                custBtn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-primary text-white shadow-glow';
+                adminBtn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white';
+                custView.classList.remove('hidden');
+                adminView.classList.add('hidden');
+                custNav.classList.remove('hidden');
+            } else {
+                adminBtn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-brand-primary text-white shadow-glow';
+                custBtn.className = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-gray-400 hover:text-white';
+                adminView.classList.remove('hidden');
+                custView.classList.add('hidden');
+                custNav.classList.add('hidden');
+                renderAdminDashboard();
+            }
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all';
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-white bg-brand-primary shadow-glow';
+            }
+
+            if (tabId === 'track') {
+                renderCustomerOrderStatus();
+            }
+        }
+
+        // -------------------------------------------------------------
+        // PC BUILDER UI RENDERING
+        // -------------------------------------------------------------
+        function renderPartsSlots() {
+            const container = document.getElementById('components-list');
+            if (!container) return;
+
+            let html = '';
+            for (const [catKey, meta] of Object.entries(categoryMeta)) {
+                const selected = selectedParts[catKey];
+                html += `
+                    <div class="bg-brand-card p-4 rounded-2xl border border-brand-border flex items-center justify-between gap-4 transition hover:border-brand-border/80">
+                        <div class="flex items-center space-x-3 min-w-0">
+                            <div class="w-10 h-10 rounded-xl ${selected ? 'bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/40' : 'bg-brand-dark text-gray-400 border border-brand-border'} flex items-center justify-center shrink-0">
+                                <i class="fa-solid ${meta.icon} text-lg"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs text-gray-400 font-medium block">${meta.title}</span>
+                                ${selected 
+                                    ? `<h4 class="text-sm font-bold text-white truncate">${selected.name}</h4><span class="text-xs text-gray-400">${selected.specs}</span>`
+                                    : `<span class="text-xs text-gray-500 italic">ยังไม่ได้เลือกอุปกรณ์</span>`
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 shrink-0">
+                            ${selected ? `
+                                <span class="text-sm font-bold text-brand-cyan">${selected.price.toLocaleString()} ฿</span>
+                                <button onclick="removeSelectedPart('${catKey}')" class="p-2 text-gray-400 hover:text-red-400 transition" title="ยกเลิกการเลือก">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : `
+                                <button onclick="openPartModal('${catKey}')" class="px-3.5 py-1.5 bg-brand-primary/20 hover:bg-brand-primary text-brand-cyan hover:text-white border border-brand-primary/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>เลือกอุปกรณ์</span>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+            calculateTotal();
+        }
+
+        function removeSelectedPart(category) {
+            selectedParts[category] = null;
+            renderPartsSlots();
+        }
+
+        function filterParts() {
+            renderPartsSlots();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-brand').value = 'all';
+            document.getElementById('filter-price').value = 'all';
+            renderPartsSlots();
+        }
+
+        // -------------------------------------------------------------
+        // MODAL & PART SELECTION
+        // -------------------------------------------------------------
+        function openPartModal(catKey) {
+            currentActiveCategory = catKey;
+            const meta = categoryMeta[catKey];
+            document.getElementById('modal-category-title').innerHTML = `<i class="fa-solid ${meta.icon} text-brand-cyan mr-2"></i>เลือก ${meta.title}`;
+            document.getElementById('modal-search').value = '';
+            
+            renderModalPartsList(partsCatalog[catKey]);
+            document.getElementById('part-select-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function renderModalPartsList(list) {
+            const container = document.getElementById('modal-parts-list');
+            const brandFilter = document.getElementById('filter-brand').value;
+            const priceFilter = document.getElementById('filter-price').value;
+
+            let filtered = list.filter(item => {
+                if (brandFilter !== 'all' && item.brand !== brandFilter && !item.name.includes(brandFilter)) return false;
+                if (priceFilter === 'low' && item.price >= 5000) return false;
+                if (priceFilter === 'mid' && (item.price < 5000 || item.price > 15000)) return false;
+                if (priceFilter === 'high' && item.price <= 15000) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-gray-500 py-8">ไม่พบอุปกรณ์ที่ตรงตามเงื่อนไขตัวกรอง</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="p-3 rounded-xl bg-brand-dark/60 border border-brand-border flex items-center justify-between hover:border-brand-primary/50 transition">
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold text-white">${item.name}</span>
+                            <span class="text-[10px] bg-brand-card px-2 py-0.5 rounded text-gray-400 border border-brand-border">${item.brand}</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400">${item.specs}</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm font-bold text-brand-cyan">${item.price.toLocaleString()} ฿</span>
+                        <button onclick="selectPart('${item.id}')" class="px-3 py-1.5 bg-brand-primary text-white rounded-lg text-xs font-semibold hover:bg-brand-primary/80 transition">
+                            เลือก
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchModalParts() {
+            if (!currentActiveCategory) return;
+            const query = document.getElementById('modal-search').value.toLowerCase();
+            const list = partsCatalog[currentActiveCategory].filter(item => 
+                item.name.toLowerCase().includes(query) || item.specs.toLowerCase().includes(query)
+            );
+            renderModalPartsList(list);
+        }
+
+        function selectPart(partId) {
+            const list = partsCatalog[currentActiveCategory];
+            const found = list.find(p => p.id === partId);
+            if (found) {
+                selectedParts[currentActiveCategory] = found;
+                renderPartsSlots();
+                closeModal('part-select-modal');
+            }
+        }
+
+        // -------------------------------------------------------------
+        // PRICING & CART CALCULATIONS
+        // -------------------------------------------------------------
+        function calculateTotal() {
+            let total = 0;
+            let count = 0;
+            let cartPreviewHtml = '';
+
+            for (const [cat, item] of Object.entries(selectedParts)) {
+                if (item) {
+                    total += item.price;
+                    count++;
+                    cartPreviewHtml += `
+                        <div class="flex justify-between items-center py-1 border-b border-brand-border/40">
+                            <span class="text-gray-300 truncate max-w-[200px]">${item.name}</span>
+                            <span class="text-brand-cyan font-bold">${item.price.toLocaleString()} ฿</span>
+                        </div>
+                    `;
+                }
+            }
+
+            const addonAssembly = document.getElementById('addon-assembly')?.checked;
+            const addonWindows = document.getElementById('addon-windows')?.checked;
+
+            if (addonAssembly) total += 350;
+            if (addonWindows) total += 1200;
+
+            document.getElementById('total-price').innerText = `${total.toLocaleString()} ฿`;
+            document.getElementById('selected-count-badge').innerText = `${count} ชิ้น`;
+            document.getElementById('btn-checkout').disabled = count === 0;
+
+            const previewBox = document.getElementById('cart-items-preview');
+            if (previewBox) {
+                previewBox.innerHTML = count > 0 
+                    ? cartPreviewHtml 
+                    : `<p class="text-gray-500 text-center py-6">ยังไม่ได้เลือกร้านอุปกรณ์ คลิก "เลือกอุปกรณ์" ด้านซ้ายเพื่อเริ่มจัดสเปค</p>`;
+            }
+        }
+
+        // -------------------------------------------------------------
+        // AI SPECS WIZARD LOGIC
+        // -------------------------------------------------------------
+        function generateAISpecs(e) {
+            e.preventDefault();
+            const budget = parseInt(document.getElementById('ai-budget').value) || 25000;
+            const usecase = document.querySelector('input[name="ai-usecase"]:checked').value;
+            const brandPref = document.getElementById('ai-brand-pref').value;
+
+            let cpuMatch, mbMatch, gpuMatch, ramMatch, storageMatch, psuMatch, coolerMatch, caseMatch;
+
+            // Smart Allocation based on Budget & Use-case
+            if (budget < 18000) {
+                // Low Budget Setup (~12,000 - 17,000 B)
+                cpuMatch = brandPref === 'AMD' ? partsCatalog.cpu.find(c => c.id === 'cpu-a2') : partsCatalog.cpu.find(c => c.id === 'cpu-gen9-2'); // i5-9400F / Ryzen 3
+                mbMatch = brandPref === 'AMD' ? partsCatalog.mb.find(m => m.id === 'mb-a1') : partsCatalog.mb.find(m => m.id === 'mb-0'); 
+                gpuMatch = partsCatalog.gpu.find(g => g.id === 'gpu-rtx2060'); // RTX 2060 6GB
+                ramMatch = partsCatalog.ram.find(r => r.id === 'ram-0'); // 8GB
+                storageMatch = partsCatalog.storage.find(s => s.id === 'ssd-128-m2'); // 128GB NVMe
+                psuMatch = partsCatalog.psu.find(p => p.id === 'psu-1'); // 600W
+                coolerMatch = partsCatalog.cooler.find(c => c.id === 'cool-0');
+                caseMatch = partsCatalog.case.find(c => c.id === 'case-1');
+            } else if (budget >= 18000 && budget < 35000) {
+                // Mid-Tier Budget Setup (~23,000 - 32,000 B)
+                if (usecase === 'work') {
+                    cpuMatch = brandPref === 'AMD' ? partsCatalog.cpu.find(c => c.id === 'cpu-5') : partsCatalog.cpu.find(c => c.id === 'cpu-gen10-3'); // i7-10700K / Ryzen 5 5600
+                    mbMatch = brandPref === 'AMD' ? partsCatalog.mb.find(m => m.id === 'mb-4') : partsCatalog.mb.find(m => m.id === 'mb-01');
+                    gpuMatch = partsCatalog.gpu.find(g => g.id === 'gpu-rtx2060');
+                    ramMatch = partsCatalog.ram.find(r => r.id === 'ram-1b'); // 32GB RAM
+                    storageMatch = partsCatalog.storage.find(s => s.id === 'ssd-2'); // 1TB NVMe
+                    psuMatch = partsCatalog.psu.find(p => p.id === 'psu-2'); // 750W
+                    coolerMatch = partsCatalog.cooler.find(c => c.id === 'cool-1');
+                    caseMatch = partsCatalog.case.find(c => c.id === 'case-2');
+                } else if (usecase === 'office') {
+                    cpuMatch = brandPref === 'AMD' ? partsCatalog.cpu.find(c => c.id === 'cpu-5g') : partsCatalog.cpu.find(c => c.id === 'cpu-gen10-2'); // i5-10400F / 5600G
+                    mbMatch = brandPref === 'AMD' ? partsCatalog.mb.find(m => m.id === 'mb-4') : partsCatalog.mb.find(m => m.id === 'mb-1');
+                    gpuMatch = partsCatalog.gpu.find(g => g.id === 'gpu-gt1030');
+                    ramMatch = partsCatalog.ram.find(r => r.id === 'ram-1'); // 16GB
+                    storageMatch = partsCatalog.storage.find(s => s.id === 'ssd-2'); // 1TB
+                    psuMatch = partsCatalog.psu.find(p => p.id === 'psu-1'); // 600W
+                    coolerMatch = partsCatalog.cooler.find(c => c.id === 'cool-0');
+                    caseMatch = partsCatalog.case.find(c => c.id === 'case-0');
+                } else {
+                    // Gaming Usecase (Default for 25,000 B)
+                    cpuMatch = brandPref === 'AMD' ? partsCatalog.cpu.find(c => c.id === 'cpu-5') : partsCatalog.cpu.find(c => c.id === 'cpu-gen10-2'); // i5-10400F / Ryzen 5600
+                    mbMatch = brandPref === 'AMD' ? partsCatalog.mb.find(m => m.id === 'mb-4') : partsCatalog.mb.find(m => m.id === 'mb-01'); // H410 / B550
+                    gpuMatch = partsCatalog.gpu.find(g => g.id === 'gpu-rtx2080s'); // RTX 2080 Super 8GB (8,900฿)
+                    ramMatch = partsCatalog.ram.find(r => r.id === 'ram-1'); // 16GB (1,450฿)
+                    storageMatch = partsCatalog.storage.find(s => s.id === 'ssd-1'); // 500GB NVMe (1,190฿)
+                    psuMatch = partsCatalog.psu.find(p => p.id === 'psu-2'); // 750W (2,890฿)
+                    coolerMatch = partsCatalog.cooler.find(c => c.id === 'cool-1'); // Air Cooler (690฿)
+                    caseMatch = partsCatalog.case.find(c => c.id === 'case-1'); // Case RGB (990฿)
+                }
+            } else {
+                // High-End Budget Setup (> 35,000 B)
+                cpuMatch = brandPref === 'AMD' ? partsCatalog.cpu.find(c => c.id === 'cpu-6') : partsCatalog.cpu.find(c => c.id === 'cpu-3'); // i7-14700K / 7800X3D
+                mbMatch = brandPref === 'AMD' ? partsCatalog.mb.find(m => m.id === 'mb-5') : partsCatalog.mb.find(m => m.id === 'mb-2');
+                gpuMatch = partsCatalog.gpu.find(g => g.id === 'gpu-3'); // RTX 4070 Super
+                ramMatch = partsCatalog.ram.find(r => r.id === 'ram-2'); // 32GB DDR5
+                storageMatch = partsCatalog.storage.find(s => s.id === 'ssd-3'); // 1TB PCIe 4.0
+                psuMatch = partsCatalog.psu.find(p => p.id === 'psu-3'); // 850W
+                coolerMatch = partsCatalog.cooler.find(c => c.id === 'cool-3'); // AIO 240mm
+                caseMatch = partsCatalog.case.find(c => c.id === 'case-2');
+            }
+
+            window.tempAISpecs = {
+                cpu: cpuMatch || partsCatalog.cpu[0],
+                mb: mbMatch || partsCatalog.mb[0],
+                gpu: gpuMatch || partsCatalog.gpu[0],
+                ram: ramMatch || partsCatalog.ram[0],
+                storage: storageMatch || partsCatalog.storage[0],
+                psu: psuMatch || partsCatalog.psu[0],
+                cooler: coolerMatch || partsCatalog.cooler[0],
+                case: caseMatch || partsCatalog.case[0]
+            };
+
+            let aiTotal = Object.values(window.tempAISpecs).reduce((a, b) => a + (b ? b.price : 0), 0);
+
+            let specListHtml = Object.entries(window.tempAISpecs).map(([cat, item]) => `
+                <div class="flex justify-between items-center py-1.5 border-b border-brand-border/30">
+                    <span class="text-gray-400 font-semibold uppercase text-xs w-20">${cat}:</span>
+                    <span class="text-white font-medium flex-1 px-2 truncate">${item.name}</span>
+                    <span class="text-brand-cyan font-bold">${item.price.toLocaleString()} ฿</span>
+                </div>
+            `).join('');
+
+            document.getElementById('ai-spec-list').innerHTML = specListHtml;
+            document.getElementById('ai-total-cost').innerText = `ราคารวมประมาณ: ${aiTotal.toLocaleString()} ฿`;
+            document.getElementById('ai-result').classList.remove('hidden');
+        }
+
+        function applyAISpecsToBuilder() {
+            if (window.tempAISpecs) {
+                selectedParts = { ...window.tempAISpecs };
+                switchTab('builder');
+                renderPartsSlots();
+            }
+        }
+
+        // -------------------------------------------------------------
+        // CHECKOUT & ORDER SUBMISSION
+        // -------------------------------------------------------------
+        function openCheckoutModal() {
+            let totalStr = document.getElementById('total-price').innerText;
+            document.getElementById('checkout-qr-amount').innerText = totalStr;
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+
+            let total = 0;
+            let items = [];
+            for (const [cat, item] of Object.entries(selectedParts)) {
+                if (item) {
+                    items.push({ name: item.name, price: item.price });
+                    total += item.price;
+                }
+            }
+
+            let addons = [];
+            if (document.getElementById('addon-assembly')?.checked) {
+                addons.push('บริการจัดประกอบ + เก็บสายไฟเนี๊ยบ (350฿)');
+                total += 350;
+            }
+            if (document.getElementById('addon-windows')?.checked) {
+                addons.push('ลง Windows 11 Key แท้ (1,200฿)');
+                total += 1200;
+            }
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                customerName: name,
+                phone: phone,
+                pickupMethod: 'รับหน้าร้าน (Store Pickup)',
+                items: items,
+                addons: addons,
+                totalPrice: total,
+                status: 'pending',
+                checklist: { partsChecked: false, assembled: false, windowsTested: false }
+            };
+
+            ordersDatabase.unshift(newOrder);
+            closeModal('checkout-modal');
+
+            // Show Live Badge on Nav
+            document.getElementById('order-badge').classList.remove('hidden');
+
+            // Add Line Notify Simulation
+            logLineNotify(`[NEW ORDER] ${newOrder.id} - คุณ${newOrder.customerName} (ยอดรวม: ${total.toLocaleString()}฿)`);
+
+            // Switch to Track tab
+            switchTab('track');
+        }
+
+        // -------------------------------------------------------------
+        // CUSTOMER ORDER TRACKER VIEW
+        // -------------------------------------------------------------
+        function renderCustomerOrderStatus() {
+            const card = document.getElementById('customer-order-status-card');
+            if (ordersDatabase.length === 0) {
+                card.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs">คุณยังไม่มีคำสั่งซื้อที่รอดำเนินการ</p>`;
+                return;
+            }
+
+            const activeOrder = ordersDatabase[0]; // show latest
+            let statusBadge = '';
+            let progressStep = 1;
+
+            if (activeOrder.status === 'pending') {
+                statusBadge = '<span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold border border-yellow-500/30"><i class="fa-solid fa-clock mr-1"></i>กำลังเตรียมอุปกรณ์</span>';
+                progressStep = 1;
+            } else if (activeOrder.status === 'assembling') {
+                statusBadge = '<span class="px-3 py-1 bg-brand-primary/20 text-brand-cyan rounded-full text-xs font-bold border border-brand-primary/30"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>กำลังจัดประกอบ PC</span>';
+                progressStep = 2;
+            } else {
+                statusBadge = '<span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/30"><i class="fa-solid fa-circle-check mr-1"></i>พร้อมรับสินค้าหน้าร้าน</span>';
+                progressStep = 3;
+            }
+
+            card.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between border-b border-brand-border pb-4 gap-2">
+                    <div>
+                        <span class="text-xs text-gray-400 font-mono">Order ID: ${activeOrder.id}</span>
+                        <h3 class="text-lg font-bold text-white">คุณ${activeOrder.customerName} (${activeOrder.phone})</h3>
+                    </div>
+                    ${statusBadge}
+                </div>
+
+                <!-- Tracker Stepper -->
+                <div class="grid grid-cols-3 gap-2 text-center text-xs py-4">
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 rounded-full ${progressStep >= 1 ? 'bg-brand-primary text-white shadow-glow' : 'bg-brand-dark text-gray-600'} mx-auto flex items-center justify-center font-bold">1</div>
+                        <p class="${progressStep >= 1 ? 'text-brand-cyan font-bold' : 'text-gray-500'}">ตรวจรับชิ้นส่วน</p>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 rounded-full ${progressStep >= 2 ? 'bg-brand-primary text-white shadow-glow' : 'bg-brand-dark text-gray-600'} mx-auto flex items-center justify-center font-bold">2</div>
+                        <p class="${progressStep >= 2 ? 'text-brand-cyan font-bold' : 'text-gray-500'}">กำลังประกอบ PC</p>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 rounded-full ${progressStep >= 3 ? 'bg-emerald-500 text-white shadow-glow' : 'bg-brand-dark text-gray-600'} mx-auto flex items-center justify-center font-bold">3</div>
+                        <p class="${progressStep >= 3 ? 'text-emerald-400 font-bold' : 'text-gray-500'}">พร้อมรับหน้าร้าน</p>
+                    </div>
+                </div>
+
+                <div class="bg-brand-dark p-4 rounded-xl border border-brand-border text-xs space-y-2">
+                    <div class="flex justify-between text-gray-400">
+                        <span>ช่องทางรับสินค้า:</span>
+                        <span class="text-white font-bold">${activeOrder.pickupMethod}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>ยอดชำระสุทธิ:</span>
+                        <span class="text-brand-cyan font-bold">${activeOrder.totalPrice.toLocaleString()} ฿</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // -------------------------------------------------------------
+        // ADMIN DASHBOARD & INSPECTOR LOGIC
+        // -------------------------------------------------------------
+        function renderAdminDashboard() {
+            const tbody = document.getElementById('admin-orders-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = ordersDatabase.map(order => `
+                <tr class="hover:bg-brand-dark/40 transition">
+                    <td class="p-3 font-mono font-bold text-brand-cyan">${order.id}</td>
+                    <td class="p-3">
+                        <div class="font-bold text-white">${order.customerName}</div>
+                        <div class="text-[11px] text-gray-400">${order.phone}</div>
+                    </td>
+                    <td class="p-3 font-bold text-white">${order.totalPrice.toLocaleString()} ฿</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
+                            order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                            order.status === 'assembling' ? 'bg-brand-primary/20 text-brand-cyan border border-brand-primary/30' :
+                            'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        }">
+                            ${order.status.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="inspectAdminOrder('${order.id}')" class="px-2.5 py-1 bg-brand-primary hover:bg-brand-primary/80 text-white rounded text-[11px] font-semibold transition">
+                            ตรวจรับ / ประกอบ
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function inspectAdminOrder(orderId) {
+            const order = ordersDatabase.find(o => o.id === orderId);
+            if (!order) return;
+
+            const inspector = document.getElementById('inspector-content');
+            inspector.innerHTML = `
+                <div class="space-y-4 text-xs">
+                    <div class="flex justify-between items-center bg-brand-dark p-3 rounded-xl border border-brand-border">
+                        <div>
+                            <span class="font-bold text-white block">${order.id} - คุณ${order.customerName}</span>
+                            <span class="text-[11px] text-gray-400">สถานะปัจจุบัน: ${order.status}</span>
+                        </div>
+                        <button onclick="confirmDepositRefund('${order.id}')" class="px-2.5 py-1 bg-brand-accent/20 border border-brand-accent/40 text-brand-accent hover:bg-brand-accent hover:text-white rounded text-[11px] transition font-semibold">
+                            คืนเงินประกัน
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="font-semibold text-gray-300">เช็คลิสต์ตรวจสอบประกอบ:</p>
+                        <label class="flex items-center space-x-2 bg-brand-dark/50 p-2 rounded border border-brand-border">
+                            <input type="checkbox" onchange="toggleChecklist('${order.id}', 'partsChecked')" ${order.checklist.partsChecked ? 'checked' : ''} class="rounded">
+                            <span>1. ตรวจสอบชิ้นส่วนอุปกรณ์ตรงตามคำสั่งซื้อ</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-brand-dark/50 p-2 rounded border border-brand-border">
+                            <input type="checkbox" onchange="toggleChecklist('${order.id}', 'assembled')" ${order.checklist.assembled ? 'checked' : ''} class="rounded">
+                            <span>2. ประกอบ PC + เก็บสายไฟเรียบร้อย</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-brand-dark/50 p-2 rounded border border-brand-border">
+                            <input type="checkbox" onchange="toggleChecklist('${order.id}', 'windowsTested')" ${order.checklist.windowsTested ? 'checked' : ''} class="rounded">
+                            <span>3. เทสท์เปิดเครื่อง / ลง OS เรียบร้อย</span>
+                        </label>
+                    </div>
+
+                    <div class="pt-2 flex space-x-2">
+                        <button onclick="updateOrderStatus('${order.id}', 'assembling')" class="flex-1 py-2 bg-brand-primary hover:bg-brand-primary/80 text-white rounded font-bold transition">
+                            เริ่มประกอบ
+                        </button>
+                        <button onclick="updateOrderStatus('${order.id}', 'ready')" class="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded font-bold transition">
+                            พร้อมรับสินค้า
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleChecklist(orderId, key) {
+            const order = ordersDatabase.find(o => o.id === orderId);
+            if (order) {
+                order.checklist[key] = !order.checklist[key];
+            }
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const order = ordersDatabase.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                logLineNotify(`[STATUS UPDATED] ออเดอร์ ${order.id} เปลี่ยนสถานะเป็น: ${newStatus.toUpperCase()}`);
+                renderAdminDashboard();
+                inspectAdminOrder(orderId);
+            }
+        }
+
+        function confirmDepositRefund(orderId) {
+            logLineNotify(`[REFUND CONFIRMED] ยืนยันคืนเงินประกัน/มัดจำ สำหรับออเดอร์ ${orderId} เรียบร้อยแล้ว`);
+        }
+
+        function logLineNotify(msg) {
+            const box = document.getElementById('line-notify-logs');
+            if (box) {
+                const time = new Date().toLocaleTimeString();
+                box.innerHTML += `<div>[${time}] ${msg}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            renderPartsSlots();
+        };
+    </script>
+</body>
+</html>
